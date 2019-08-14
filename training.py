@@ -12,7 +12,7 @@ import numpy as np
 from tensorflow.python.ops.ctc_ops import (ctc_loss, ctc_beam_search_decoder)
 from settings import (config, DataMode)
 from DataLoader import DataLoader
-from model import (build_model, test_model)
+from model import build_model
 from logger import event_logger
 
 SVAED_MODEL_DIR = './savedModel/{}'.format(config.dataset)

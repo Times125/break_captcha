@@ -19,7 +19,7 @@ from networks import (
 )
 from settings import config
 
-__all__ = ['build_model', 'test_model']
+__all__ = ['build_model']
 
 
 def ctc_lambda_func(args):
