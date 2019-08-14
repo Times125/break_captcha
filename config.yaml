@@ -36,9 +36,9 @@ model:
   smooth: -1
   blur: -1
   dataset: tencent
-  train_path: cyclegan/datasets/tencent/trainA
-  test_path: cyclegan/datasets/tencent/testA
-  val_path: cyclegan/datasets/tencent/valA
+  train_path: tencent/trainA
+  test_path: tencent/testA
+  val_path: tencent/valA
   n_class: 37
   max_seq_len: 4
   epochs: 100000
