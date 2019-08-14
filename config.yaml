@@ -1,0 +1,51 @@
+############################ Project Settings ############################
+
+# :Params cnn: cnn layers use 'CNN5' or 'ResNet50';
+# :Params rnn: rnn layer use 'BiLSTM' or 'BiGRU';
+# :Params use_gpu:  whether use gpu. If True, model will use CudnnGRU or CudnnLSTM to accelerate computing;
+# :Params image_width: the images's width;
+# :Params image_height: the images's height;
+# :Params channel: the images's color channels.If channel=1, it means that program will convert the image to gray mode.
+# :Params resize: tuple/list of 2 integers. Reshape the image size when make dataset;
+# :Params replace_transparent: If True, Program will convert image mode 'RGBA' into 'RGB';
+# :Params standardization: If True, the image standardization will be done and make binaryzation/smoo Invalid argument: sequence_length(0) <= 7th ops useless.
+# :Params binaryzation: If -1, not use image binaryzation else choose a value between (0,255) to set binary threshold;
+# :Params smooth: If -1, not use image smooth else choose a odd value greater than 1 to set MedianBlur's kernel size;
+# :Params blur: If -1, not use image blur else choose a odd value greater than 1 to set GaussianBlur's kernel size;
+# :Params dataset: the dataset's name, not Null;
+# :Params train_path: train data path, which contains all train images. These images will be converted to tfrecords;
+# :Params test_path:  test data path, which contains all test images. These images will be converted to tfrecords;
+# :Params val_path: val data path, which contains all val images. These images will be converted to tfrecords;
+# :Params n_class: character numbers the corpus's labels contains;
+# :Params max_seq_len: max character numbers the label sequence contains;
+# :Params character: all characters the corpus's labels contains;
+# :Params epochs: train epochs;
+# :Params batch_size: train batch size;
+# :Params end_acc: if acc is higher than 'end_acc', the training process will stop
+model:
+  cnn: CNN5 # ResNet50
+  rnn: BiLSTM
+  use_gpu: True
+  image_width: 150
+  image_height: 50
+  channel: 3
+  resize: [150, 50]
+  replace_transparent: True
+  standardization: False
+  binaryzation: -1
+  smooth: -1
+  blur: -1
+  dataset: tencent
+  train_path: cyclegan/datasets/tencent/trainA
+  test_path: cyclegan/datasets/tencent/testA
+  val_path: cyclegan/datasets/tencent/valA
+  n_class: 37
+  max_seq_len: 4
+  epochs: 100000
+  batch_size: 64
+  end_acc: 98
+  characters: ['a', 'c', 'b', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l',
+               'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x',
+               'y', 'z', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '']
+
+
