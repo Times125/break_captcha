@@ -92,7 +92,6 @@ def train():
         return _acc
 
     # start training progress
-    end_training = False
     for epoch in range(start_epoch, config.epochs):
         train_acc_avg = []
         train_loss_avg = []
@@ -117,14 +116,12 @@ def train():
             tf.summary.scalar('acc', val_acc, step=epoch)
         print('Epoch: [{epoch}/{epochs}], train_loss: {train_loss}, train_acc: {train_acc}, '
               'val_loss: {val_loss}, val_acc: {val_acc}, '
-              'one epoch costs time {time} s'.format(epoch=epoch + 1, epochs=config.epochs,
-                                                     train_loss=train_loss, train_acc=train_acc,
-                                                     val_loss=val_loss, val_acc=val_acc,
-                                                     time=time.time() - start))
+              'one epoch costs time: {time} s'.format(epoch=epoch + 1, epochs=config.epochs,
+                                                      train_loss=train_loss, train_acc=train_acc,
+                                                      val_loss=val_loss, val_acc=val_acc,
+                                                      time=time.time() - start))
 
         if val_acc >= config.end_acc or val_loss <= config.end_cost:
-            end_training = True
-        if end_training:
             base_model.save(os.path.join(SVAED_MODEL_DIR, '{}_model.h5'.format(config.dataset)))
             break
         ckpt_path = os.path.join(CHECKPOINT_DIR, '{cnn}&{rnn}-{epoch}'.format(cnn=config.cnn_type,
