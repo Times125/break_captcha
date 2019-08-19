@@ -38,7 +38,8 @@ def train():
     train_dataset = DataLoader(DataMode.Train).load_batch_from_tfrecords()
     val_dataset = DataLoader(DataMode.Val).load_batch_from_tfrecords()
 
-    summary_writer = tf.summary.create_file_writer(os.path.join(TENSORBOARD_DIR, 'trainLogs'))
+    train_summary_writer = tf.summary.create_file_writer(os.path.join(TENSORBOARD_DIR, 'trainLogs'))
+    val_summary_writer = tf.summary.create_file_writer(os.path.join(TENSORBOARD_DIR, 'valLogs'))
 
     latest_ckpt = tf.train.latest_checkpoint(CHECKPOINT_DIR)
     start_epoch = 0
@@ -105,12 +106,13 @@ def train():
         train_loss = np.mean(train_loss_avg)
         train_acc = np.mean(train_acc_avg)
         val_loss, val_acc = _validation()
-        # write train logs
-        with summary_writer.as_default():
-            tf.summary.scalar('train_loss', train_loss, step=epoch)
-            tf.summary.scalar('train_acc', train_acc, step=epoch)
-            tf.summary.scalar('val_loss', val_loss, step=epoch)
-            tf.summary.scalar('val_acc', val_acc, step=epoch)
+        # write train and val logs
+        with train_summary_writer.as_default():
+            tf.summary.scalar('loss', train_loss, step=epoch)
+            tf.summary.scalar('acc', train_acc, step=epoch)
+        with val_summary_writer.as_default():
+            tf.summary.scalar('loss', val_loss, step=epoch)
+            tf.summary.scalar('acc', val_acc, step=epoch)
         print('Epoch: [{epoch}/{epochs}], train_loss: {train_loss}, train_acc: {train_acc}, '
               'val_loss: {val_loss}, val_acc: {val_acc}'.format(epoch=epoch + 1, epochs=config.epochs,
                                                                 train_loss=train_loss,
