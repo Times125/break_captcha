@@ -23,6 +23,10 @@ CHECKPOINT_DIR = './checkpoints/{}'.format(config.dataset)
 if not os.path.exists(CHECKPOINT_DIR):
     os.makedirs(CHECKPOINT_DIR)
 
+TENSORBOARD_DIR = './tensorboard/{}'.format(config.dataset)
+if not os.path.exists(TENSORBOARD_DIR):
+    os.makedirs(TENSORBOARD_DIR)
+
 
 def train():
     """
@@ -33,6 +37,8 @@ def train():
     print('seq_step_len ', seq_step_len)
     train_dataset = DataLoader(DataMode.Train).load_batch_from_tfrecords()
     val_dataset = DataLoader(DataMode.Val).load_batch_from_tfrecords()
+
+    summary_writer = tf.summary.create_file_writer(os.path.join(TENSORBOARD_DIR, 'trainLogs'))
 
     latest_ckpt = tf.train.latest_checkpoint(CHECKPOINT_DIR)
     start_epoch = 0
@@ -86,24 +92,33 @@ def train():
     # start training progress
     end_training = False
     for epoch in range(start_epoch, config.epochs):
+        train_acc_avg = []
+        train_loss_avg = []
         for batch, data in enumerate(train_dataset):
             images, labels = data
             input_length = np.array(np.ones(len(images)) * int(seq_step_len))
             label_length = np.array(np.ones(len(images)) * config.max_seq_len)
             train_loss = model.train_on_batch(x=[images, labels, input_length, label_length], y=labels)
-            # logging result every 10-batch. (about 10 * batch_size images)
-            if batch % 10 == 0:
-                train_acc = _compute_acc(images, labels, input_length)
-                val_loss, val_acc = _validation()
-                print('Epoch: [{epoch}/{epochs}], iter: {batch}, train_loss: {train_loss}, train_acc: {train_acc}, '
-                      'val_loss: {val_loss}, val_acc: {val_acc}'.format(epoch=epoch + 1, epochs=config.epochs,
-                                                                        batch=batch, train_loss=train_loss,
-                                                                        train_acc=train_acc, val_loss=val_loss,
-                                                                        val_acc=val_acc))
+            train_acc = _compute_acc(images, labels, input_length)
+            train_acc_avg.append(train_acc)
+            train_loss_avg.append(train_loss)
+        train_loss = np.mean(train_loss_avg)
+        train_acc = np.mean(train_acc_avg)
+        val_loss, val_acc = _validation()
+        # write train logs
+        with summary_writer.as_default():
+            tf.summary.scalar('train_loss', train_loss, step=epoch)
+            tf.summary.scalar('train_acc', train_acc, step=epoch)
+            tf.summary.scalar('val_loss', val_loss, step=epoch)
+            tf.summary.scalar('val_acc', val_acc, step=epoch)
+        print('Epoch: [{epoch}/{epochs}], train_loss: {train_loss}, train_acc: {train_acc}, '
+              'val_loss: {val_loss}, val_acc: {val_acc}'.format(epoch=epoch + 1, epochs=config.epochs,
+                                                                train_loss=train_loss,
+                                                                train_acc=train_acc, val_loss=val_loss,
+                                                                val_acc=val_acc))
 
-                if val_acc >= config.end_acc or val_loss <= config.end_cost:
-                    end_training = True
-                    break
+        if val_acc >= config.end_acc or val_loss <= config.end_cost:
+            end_training = True
         if end_training:
             base_model.save(os.path.join(SVAED_MODEL_DIR, '{}_model.h5'.format(config.dataset)))
             break
