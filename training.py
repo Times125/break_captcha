@@ -7,6 +7,7 @@
 @Description: 
 """
 import os
+import time
 import tensorflow as tf
 import numpy as np
 from tensorflow.python.ops.ctc_ops import (ctc_loss, ctc_beam_search_decoder)
@@ -95,6 +96,7 @@ def train():
     for epoch in range(start_epoch, config.epochs):
         train_acc_avg = []
         train_loss_avg = []
+        start = time.time()
         for batch, data in enumerate(train_dataset):
             images, labels = data
             input_length = np.array(np.ones(len(images)) * int(seq_step_len))
@@ -114,10 +116,11 @@ def train():
             tf.summary.scalar('loss', val_loss, step=epoch)
             tf.summary.scalar('acc', val_acc, step=epoch)
         print('Epoch: [{epoch}/{epochs}], train_loss: {train_loss}, train_acc: {train_acc}, '
-              'val_loss: {val_loss}, val_acc: {val_acc}'.format(epoch=epoch + 1, epochs=config.epochs,
-                                                                train_loss=train_loss,
-                                                                train_acc=train_acc, val_loss=val_loss,
-                                                                val_acc=val_acc))
+              'val_loss: {val_loss}, val_acc: {val_acc}, '
+              'one epoch costs time {time} s'.format(epoch=epoch + 1, epochs=config.epochs,
+                                                     train_loss=train_loss, train_acc=train_acc,
+                                                     val_loss=val_loss, val_acc=val_acc,
+                                                     time=time.time() - start))
 
         if val_acc >= config.end_acc or val_loss <= config.end_cost:
             end_training = True
