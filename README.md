@@ -33,4 +33,4 @@
 6.	运行脚本`make_dataset.py`创建所需要的`tfrecord`文件；
 7.	将所有图片数据转换为`tfrecord`文件后，就可以开始训练了，运行脚本`training.py`开始训练。
 8.	模型的训练过程结果都记录在`tensorboard logfile`中，通过运行`tensorboard --logdir=tensorboard/your_dataset_name --host=127.0.0.1`即可可视化训练结果；
-
+9.  训练要有耐心，如果图片较多，一般要训练几百个epoch才可能看到明显的效果提升。
