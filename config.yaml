@@ -8,7 +8,8 @@
 # :Params channel: the images's color channels.If channel=1, it means that program will convert the image to gray mode.
 # :Params resize: tuple/list of 2 integers. Reshape the image size when make dataset;
 # :Params replace_transparent: If True, Program will convert image mode 'RGBA' into 'RGB';
-# :Params standardization: If True, the image standardization will be done and make binaryzation/smoo Invalid argument: sequence_length(0) <= 7th ops useless.
+# :Params standardization: If True, the image standardization will be done and make binaryzation/smoo Invalid argument:
+#         sequence_length(0) <= 7th ops useless;
 # :Params binaryzation: If -1, not use image binaryzation else choose a value between (0,255) to set binary threshold;
 # :Params smooth: If -1, not use image smooth else choose a odd value greater than 1 to set MedianBlur's kernel size;
 # :Params blur: If -1, not use image blur else choose a odd value greater than 1 to set GaussianBlur's kernel size;
@@ -29,8 +30,15 @@
 # :Params ctc_greedy: perform much faster best-path search if `true`
 # :Params beam_width: if `greedy` is `false`: a beam search decoder will be used with a beam of this width
 # :Params top_paths: that contains the log probability of each decoded sequence.
+# :Params time_major: If time_major == False, this will be a `Tensor` shaped: `[batch_size, max_time, num_classes]`,
+#         else `[batch_size,max_time, num_classes]`;
+# :Params ctc_merge_repeated: If `ctc_merge_repeated` is set False, then deep within the CTC calculation, repeated
+#         non-blank labels will not be merged and are interpreted as individual labels;
+# :Params preprocess_collapse_repeated: If `preprocess_collapse_repeated` is True, then a preprocessing step runs before
+#         loss calculation, wherein repeated labels passed to the loss are merged into single labels;
+# :Params decode_merge_repeated: If `merge_repeated` is `True`, merge repeated classes in output, default 'false'
 model:
-  cnn: CNN5 # ResNet50
+  cnn: ResNet50
   rnn: BiLSTM
   use_gpu: True
   image_width: 150
@@ -43,14 +51,14 @@ model:
   smooth: -1
   blur: -1
   dataset: tencent
-  train_path: datasets/tencent/trainA
-  test_path: datasets/tencent/testA
-  val_path: datasets/tencent/valA
-  n_class: 37
+  train_path: cyclegan/datasets/tencent/trainA
+  test_path: cyclegan/datasets/tencent/testA
+  val_path: cyclegan/datasets/tencent/valA
+  n_class: 38
   max_seq_len: 4
   epochs: 100000
   batch_size: 64
-  end_acc: 0.98
+  end_acc: 0.9
   end_cost: 1.0
   learning_rate: 0.001
   regularizer_l2: 0.01
@@ -58,6 +66,10 @@ model:
   ctc_greedy: True
   beam_width: 5
   top_paths: 1
+  time_major: True
+  ctc_merge_repeated: True
+  preprocess_collapse_repeated: False
+  ctc_decode_merge_repeated: False
   characters: ['a', 'c', 'b', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l',
                'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x',
                'y', 'z', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '']

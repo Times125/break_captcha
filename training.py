@@ -15,6 +15,7 @@ from settings import (config, DataMode)
 from DataLoader import DataLoader
 from model import build_model
 from logger import event_logger
+from ctc_ops import ctc_decode
 
 SVAED_MODEL_DIR = './savedModel/{}'.format(config.dataset)
 if not os.path.exists(SVAED_MODEL_DIR):
@@ -35,7 +36,7 @@ def train():
     :return:
     """
     model, base_model, seq_step_len = build_model()
-    print('seq_step_len ', seq_step_len)
+    print('input lengths ', seq_step_len, 'label length', config.max_seq_len)
     train_dataset = DataLoader(DataMode.Train).load_batch_from_tfrecords()
     val_dataset = DataLoader(DataMode.Val).load_batch_from_tfrecords()
 
@@ -77,10 +78,11 @@ def train():
         """
         _y_pred = base_model.predict_on_batch(x=_images)
         # print(_y_pred)  # (64, 9, 37)
-        _decoded_dense, _ = tf.keras.backend.ctc_decode(_y_pred, _input_length,
-                                                        greedy=config.ctc_greedy,
-                                                        beam_width=config.beam_width,
-                                                        top_paths=config.top_paths)
+        _decoded_dense, _ = ctc_decode(_y_pred, _input_length,
+                                       greedy=config.ctc_greedy,
+                                       beam_width=config.beam_width,
+                                       top_paths=config.top_paths,
+                                       merge_repeated=config.decode_merge_repeated)
         _error_count = 0
         for pred, real in zip(_decoded_dense[0], _labels):
             str_real = ''.join([config.characters[x] for x in real if x != -1])
@@ -168,20 +170,3 @@ def model_test():
 if __name__ == '__main__':
     train()
     # model_test()
-#     # # print(config.channel)
-#     # print(one_hot('abcd'))
-#     #
-#     model, base_model, seq_step_len = test_model()
-#     data = np.random.random_sample((4000, 150, 50, 1))
-#     labels = np.random.randint(4, size=(4000, 4))
-#     # labels = to_categorical(_labels, 37)
-#     print(labels.shape)
-#     model.fit([data,
-#                labels,
-#                np.array(np.ones(4000) * int(seq_step_len)),
-#                np.array(np.ones(4000) * 4)
-#                ], labels,
-#               batch_size=32,
-#               epochs=100,
-#               verbose=1
-#               )

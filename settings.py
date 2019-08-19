@@ -69,6 +69,10 @@ class Config(object):
         self.ctc_greedy = self.__model_args.get('ctc_greedy', True)
         self.beam_width = self.__model_args.get('beam_width', 10)
         self.top_paths = self.__model_args.get('top_paths', 1)
+        self.ctc_merge_repeated = self.__model_args.get('ctc_merge_repeated', True)
+        self.time_major = self.__model_args.get('time_major', True)
+        self.preprocess_collapse_repeated = self.__model_args.get('preprocess_collapse_repeated', False)
+        self.decode_merge_repeated = self.__model_args.get('ctc_decode_merge_repeated', False)
         self.characters = self.__model_args.get('characters', list(string.ascii_letters + string.digits) + [''])
 
 

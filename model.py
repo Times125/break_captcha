@@ -7,17 +7,15 @@
 @Description: 
 """
 import os
-
 from tensorflow.python.keras.layers import *
 from tensorflow.python.keras.optimizers import Adam
 from tensorflow.python.keras.models import Model
-from tensorflow.python.keras.regularizers import l2
-from tensorflow.python.keras import backend as K
 from tensorflow.python.keras.utils import plot_model
 from networks import (
     ResNet50, CNN5, BiGRU, BiLSTM
 )
 from settings import config
+from ctc_ops import ctc_batch_cost
 
 __all__ = ['build_model']
 
@@ -26,7 +24,7 @@ def ctc_lambda_func(args):
     y_pred, labels, input_length, label_length = args
     # the 2 is critical here since the first couple outputs of the RNN tend to be garbage
     y_pred = y_pred[:, :, :]
-    return K.ctc_batch_cost(labels, y_pred, input_length, label_length)
+    return ctc_batch_cost(labels, y_pred, input_length, label_length)
 
 
 def build_model():
@@ -47,8 +45,8 @@ def build_model():
     base_model = Model(inputs=inputs, outputs=predictions)
     # CTC_loss
     labels = Input(name='the_labels', shape=[config.max_seq_len, ], dtype='float32')
-    input_length = Input(name='input_length', shape=[1], dtype='int64')
-    label_length = Input(name='label_length', shape=[1], dtype='int64')
+    input_length = Input(name='input_length', shape=[1, ], dtype='int64')
+    label_length = Input(name='label_length', shape=[1, ], dtype='int64')
     loss_out = Lambda(ctc_lambda_func, output_shape=(1,), name='ctc')(
         [predictions, labels, input_length, label_length])
     model = Model(inputs=[inputs, labels, input_length, label_length], outputs=[loss_out])
@@ -56,5 +54,6 @@ def build_model():
     if not os.path.exists('./plotModel'):
         os.makedirs('./plotModel')
     plot_model(model, './plotModel/{}-{}_model.png'.format(config.cnn_type, config.rnn_type), show_shapes=True)
-    plot_model(base_model, './plotModel/{}-{}_base_model.png'.format(config.cnn_type, config.rnn_type), show_shapes=True)
+    plot_model(base_model, './plotModel/{}-{}_base_model.png'.format(config.cnn_type, config.rnn_type),
+               show_shapes=True)
     return model, base_model, int(conv_shape[1])
