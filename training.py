@@ -120,14 +120,13 @@ def train():
                                                       train_loss=train_loss, train_acc=train_acc,
                                                       val_loss=val_loss, val_acc=val_acc,
                                                       time=time.time() - start))
-
-        if val_acc >= config.end_acc or val_loss <= config.end_cost:
-            base_model.save(os.path.join(SVAED_MODEL_DIR, '{}_model.h5'.format(config.dataset)))
-            break
         ckpt_path = os.path.join(CHECKPOINT_DIR, '{cnn}&{rnn}-{epoch}'.format(cnn=config.cnn_type,
                                                                               rnn=config.rnn_type,
                                                                               epoch=epoch + 1))
         model.save_weights(ckpt_path)
+        if val_acc >= config.end_acc or val_loss <= config.end_cost:
+            base_model.save(os.path.join(SVAED_MODEL_DIR, '{name}_model.h5'.format(name=config.dataset)))
+            break
 
 
 def model_test():
