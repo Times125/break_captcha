@@ -18,10 +18,17 @@
 # :Params val_path: val data path, which contains all val images. These images will be converted to tfrecords;
 # :Params n_class: character numbers the corpus's labels contains;
 # :Params max_seq_len: max character numbers the label sequence contains;
-# :Params character: all characters the corpus's labels contains;
+# :Params character: all characters the corpus's labels contains, must contain '' in the list;
 # :Params epochs: train epochs;
 # :Params batch_size: train batch size;
-# :Params end_acc: if acc is higher than 'end_acc', the training process will stop
+# :Params end_acc: if acc is higher than 'end_acc', the training process will stop;
+# :Params end_cost: if train cost is smaller than 'end_cost', the training process will stop;
+# :Params learning_rate: use it in
+# :Params regularizer_l2: use in cnn layers
+# :Params rnn_units: the unit number of rnn layers
+# :Params ctc_greedy: perform much faster best-path search if `true`
+# :Params beam_width: if `greedy` is `false`: a beam search decoder will be used with a beam of this width
+# :Params top_paths: that contains the log probability of each decoded sequence.
 model:
   cnn: CNN5 # ResNet50
   rnn: BiLSTM
@@ -36,16 +43,24 @@ model:
   smooth: -1
   blur: -1
   dataset: tencent
-  train_path: tencent/trainA
-  test_path: tencent/testA
-  val_path: tencent/valA
+  train_path: datasets/tencent/trainA
+  test_path: datasets/tencent/testA
+  val_path: datasets/tencent/valA
   n_class: 37
   max_seq_len: 4
   epochs: 100000
   batch_size: 64
-  end_acc: 98
+  end_acc: 0.98
+  end_cost: 1.0
+  learning_rate: 0.001
+  regularizer_l2: 0.01
+  rnn_units: 64
+  ctc_greedy: True
+  beam_width: 5
+  top_paths: 1
   characters: ['a', 'c', 'b', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l',
                'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x',
                'y', 'z', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '']
+
 
 

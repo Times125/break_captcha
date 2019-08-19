@@ -38,19 +38,32 @@ class DataLoader(object):
         # label = tf.one_hot(tf.reshape(label, [config.max_seq_len, ]), self.n_class)
         return image, label
 
-    def load_batch_from_tfrecords(self):
+    def _load_dataset_from_tfrecords(self):
         """
-        :return: tf.Dataset
+        :return:
         """
-        min_after_dequeue = 2000
         tfrecord_dir = './dataset/{}'.format(config.dataset)
         path = os.path.join(tfrecord_dir, "{}_{}.tfrecords".format(config.dataset, self.mode))
         if not os.path.exists(path):
             raise FileNotFoundError("No tfrecords file found. Please execute 'make_dataset.py' before your training")
         dataset = tf.data.TFRecordDataset(filenames=path).map(self._parse_example)
         self._size = len([_ for _ in dataset])
+        return dataset
+
+    def load_batch_from_tfrecords(self):
+        """
+        :return: tf.Dataset
+        """
+        min_after_dequeue = 2000
+        dataset = self._load_dataset_from_tfrecords()
         dataset = dataset.shuffle(min_after_dequeue).batch(config.batch_size)
         return dataset
+
+    def load_all_from_tfreocrds(self):
+        """
+        :return:
+        """
+        return self._load_dataset_from_tfrecords()
 
     @property
     def size(self):
@@ -64,24 +77,14 @@ if __name__ == '__main__':
     import matplotlib.pyplot as plt
     import numpy as np
 
-    dataloader = DataLoader(DataMode.Val)
+    dataloader = DataLoader(DataMode.Test)
     la = list()
-    dataset = dataloader.load_batch_from_tfrecords()
-    print(dataset)
+    dataset = dataloader.load_all_from_tfreocrds()
+    print(dataloader.size)
     # print(dataloader.size())
-    for i in range(1):
-        for batch, data in enumerate(dataset):
+    for i in range(2):
+        for data in dataset:
             images, labels = data
-            print(batch, labels.shape, images.numpy())
-            break
-    #         for label in labels:
-    #             text = ''
-    #             for i in label:
-    #                 text += config.characters[i]
-    #             la.append(text)
-    #
-    #         for i in images.eval():
-    #
-    # plt.imshow(np.array(a).swapaxes(1, 0))
-    # plt.title(text)
-    # plt.show()
+            print(labels.shape)
+            la.append(labels)
+    print(len(la))

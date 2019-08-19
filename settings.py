@@ -37,10 +37,12 @@ class Config(object):
         yaml_path = os.path.join(os.path.dirname(__file__), 'config.yaml')
         with open(yaml_path, encoding='utf-8') as f:
             yaml_cont = f.read()
-        cf = yaml.load(yaml_cont, Loader=yaml.SafeLoader)
-        self.__model_args = cf.get('model')
-        self.cnn = self.__model_args.get('cnn', 'CNN5')
-        self.rnn = self.__model_args.get('rnn', 'BiLSTM')
+        _cf = yaml.load(yaml_cont, Loader=yaml.SafeLoader)
+        self.__model_args = _cf.get('model')
+        _cnn = self.__model_args.get('cnn', 'CNN5')
+        self.cnn_type = _cnn if _cnn in ['CNN5', 'ResNet50'] else 'CNN5'
+        _rnn = self.__model_args.get('rnn', 'BiLSTM')
+        self.rnn_type = _rnn if _rnn in ['BiGRU', 'BiLSTM'] else 'BiLSTM'
         self.use_gpu = self.__model_args.get('use_gpu', False)
         self.image_width = self.__model_args.get('image_width', 150)
         self.image_height = self.__model_args.get('image_height', 50)
@@ -59,7 +61,14 @@ class Config(object):
         self.max_seq_len = self.__model_args.get('max_seq_len', 4)
         self.epochs = self.__model_args.get('epochs', 500)
         self.batch_size = self.__model_args.get('batch_size', 64)
-        self.end_acc = self.__model_args.get('end_acc', 50)
+        self.end_acc = self.__model_args.get('end_acc', 0.5)
+        self.end_cost = self.__model_args.get('end_cost', 1)
+        self.lr = self.__model_args.get('learning_rate', 1e-4)
+        self.l2 = self.__model_args.get('regularizer_l2', 0.01)
+        self.rnn_units = self.__model_args.get('rnn_units', 64)
+        self.ctc_greedy = self.__model_args.get('ctc_greedy', True)
+        self.beam_width = self.__model_args.get('beam_width', 10)
+        self.top_paths = self.__model_args.get('top_paths', 1)
         self.characters = self.__model_args.get('characters', list(string.ascii_letters + string.digits) + [''])
 
 

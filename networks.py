@@ -115,7 +115,12 @@ def _conv_block(input_tensor, kernel_size, filters, stage, block, strides=(2, 2)
     return x
 
 
-def ResNet50(input_tensor, pooling='avg'):
+def ResNet50(input_tensor):
+    """
+    ResNet50
+    :param input_tensor:
+    :return:
+    """
     img_input = input_tensor
     if backend.image_data_format() == 'channels_last':
         bn_axis = 3
@@ -151,16 +156,17 @@ def ResNet50(input_tensor, pooling='avg'):
     return x
 
 
-def CNN5(input_tensor):
+def CNN5(input_tensor, kr=0.01):
     """
     CNN-5
     :param input_tensor:
+    :param kr: kernel regularizer rate
     :return:
     """
     filters = [32, 64, 128, 128, 256]
     x = input_tensor
     for i in range(5):
-        x = layers.Conv2D(filters[i], (3, 3), padding='same', kernel_regularizer=l2(0.01))(x)
+        x = layers.Conv2D(filters[i], (3, 3), padding='same', kernel_regularizer=l2(kr))(x)
         x = layers.BatchNormalization()(x)
         x = layers.LeakyReLU(alpha=0.2)(x)
         if i == 0:

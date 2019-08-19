@@ -34,16 +34,15 @@ def build_model():
     build CNN-RNN model
     :return:
     """
-    cnn_type = config.cnn if config.cnn in ['CNN5', 'ResNet50'] else 'CNN5'
-    rnn_type = config.rnn if config.rnn in ['BiGRU', 'BiLSTM'] else 'BiLSTM'
     input_shape = (config.resize[0], config.resize[1], config.channel)
     inputs = Input(shape=input_shape)
     # CNN layers
-    x = CNN5(inputs) if cnn_type == 'CNN5' else ResNet50(inputs)
+    x = CNN5(inputs, config.l2) if config.cnn_type == 'CNN5' else ResNet50(inputs)
     conv_shape = x.get_shape()
     x = Reshape(target_shape=(int(conv_shape[1]), int(conv_shape[2] * conv_shape[3])))(x)
     # concat Bi-RNN layers to encode and decode sequence
-    x = BiLSTM(x, use_gpu=config.use_gpu) if rnn_type == 'BiLSTM' else BiGRU(x, use_gpu=config.use_gpu)
+    x = BiLSTM(x, units=config.rnn_units, use_gpu=config.use_gpu) if config.rnn_type == 'BiLSTM' \
+        else BiGRU(x, units=config.rnn_units, use_gpu=config.use_gpu)
     predictions = TimeDistributed(Dense(config.n_class, kernel_initializer='he_normal', activation='softmax'))(x)
     base_model = Model(inputs=inputs, outputs=predictions)
     # CTC_loss
@@ -53,10 +52,9 @@ def build_model():
     loss_out = Lambda(ctc_lambda_func, output_shape=(1,), name='ctc')(
         [predictions, labels, input_length, label_length])
     model = Model(inputs=[inputs, labels, input_length, label_length], outputs=[loss_out])
-    model.compile(loss={'ctc': lambda y_true, y_pred: y_pred}, optimizer=Adam(lr=1e-4))
+    model.compile(loss={'ctc': lambda y_true, y_pred: y_pred}, optimizer=Adam(lr=config.lr))
     if not os.path.exists('./plotModel'):
         os.makedirs('./plotModel')
-    plot_model(model, './plotModel/{}-{}_model.png'.format(cnn_type, rnn_type), show_shapes=True)
-    plot_model(base_model, './plotModel/{}-{}_base_model.png'.format(cnn_type, rnn_type), show_shapes=True)
+    plot_model(model, './plotModel/{}-{}_model.png'.format(config.cnn_type, config.rnn_type), show_shapes=True)
+    plot_model(base_model, './plotModel/{}-{}_base_model.png'.format(config.cnn_type, config.rnn_type), show_shapes=True)
     return model, base_model, int(conv_shape[1])
-

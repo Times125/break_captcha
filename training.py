@@ -38,7 +38,6 @@ def train():
     start_epoch = 0
     if latest_ckpt:
         start_epoch = int(latest_ckpt.split('-')[1].split('.')[0])
-        print('start epoch at ', start_epoch)
         model.load_weights(latest_ckpt)
         event_logger.info('model resumed from: {}, start at epoch: {}'.format(latest_ckpt, start_epoch))
     else:
@@ -47,7 +46,7 @@ def train():
     def _validation():
         """
         validate the model's acc
-        :return: acc
+        :return: loss and acc
         """
         _val_losses = []
         _val_accuracy = []
@@ -63,15 +62,17 @@ def train():
 
     def _compute_acc(_images, _labels, _input_length):
         """
-        :param _images: a batch of image, [samples, w, h, c]
+        :param _images: a batch of images, [samples, w, h, c]
         :param _labels:
         :param _input_length:
         :return: acc
         """
         _y_pred = base_model.predict_on_batch(x=_images)
         # print(_y_pred)  # (64, 9, 37)
-        _decoded_dense, _ = tf.keras.backend.ctc_decode(_y_pred, _input_length, greedy=True,
-                                                        beam_width=5, top_paths=1)
+        _decoded_dense, _ = tf.keras.backend.ctc_decode(_y_pred, _input_length,
+                                                        greedy=config.ctc_greedy,
+                                                        beam_width=config.beam_width,
+                                                        top_paths=config.top_paths)
         _error_count = 0
         for pred, real in zip(_decoded_dense[0], _labels):
             str_real = ''.join([config.characters[x] for x in real if x != -1])
@@ -83,13 +84,13 @@ def train():
         return _acc
 
     # start training progress
+    end_training = False
     for epoch in range(start_epoch, config.epochs):
         for batch, data in enumerate(train_dataset):
             images, labels = data
             input_length = np.array(np.ones(len(images)) * int(seq_step_len))
             label_length = np.array(np.ones(len(images)) * config.max_seq_len)
             train_loss = model.train_on_batch(x=[images, labels, input_length, label_length], y=labels)
-
             # logging result every 10-batch. (about 10 * batch_size images)
             if batch % 10 == 0:
                 train_acc = _compute_acc(images, labels, input_length)
@@ -100,11 +101,71 @@ def train():
                                                                         train_acc=train_acc, val_loss=val_loss,
                                                                         val_acc=val_acc))
 
-        ckpt_path = os.path.join(CHECKPOINT_DIR, 'CRNNORC-{epoch}'.format(epoch=epoch + 1))
+                if val_acc >= config.end_acc or val_loss <= config.end_cost:
+                    end_training = True
+                    break
+        if end_training:
+            base_model.save(os.path.join(SVAED_MODEL_DIR, '{}_model.h5'.format(config.dataset)))
+            break
+        ckpt_path = os.path.join(CHECKPOINT_DIR, '{cnn}&{rnn}-{epoch}'.format(cnn=config.cnn_type,
+                                                                              rnn=config.rnn_type,
+                                                                              epoch=epoch + 1))
         model.save_weights(ckpt_path)
-        base_model.save(os.path.join(SVAED_MODEL_DIR, '{}_model.h5'.format(config.dataset)))
+
+
+def model_test():
+    """
+    test the model on test dataset
+    :return:
+    """
+    test_dataloader = DataLoader(DataMode.Train)
+    test_dataset = test_dataloader.load_all_from_tfreocrds()
+    base_model = tf.keras.models.load_model(os.path.join(SVAED_MODEL_DIR, '{}_model.h5'.format(config.dataset)))
+    error_text = []
+    real_text = []
+    error_count = 0
+    for batch, data in enumerate(test_dataset):
+        images, label = data
+        # print(images.shape, label.shape)
+        input_length = np.array(np.ones(1) * int(9))
+        y_pred = base_model.predict(x=images[tf.newaxis, :, :, :])
+        # print(y_pred.shape)  # (64, 9, 37)
+        decoded_dense, _ = tf.keras.backend.ctc_decode(y_pred, input_length,
+                                                       greedy=config.ctc_greedy,
+                                                       beam_width=config.beam_width,
+                                                       top_paths=config.top_paths)
+
+        str_real = ''.join([config.characters[x] for x in label if x != -1])
+        str_pred = ''.join([config.characters[x] for x in decoded_dense[0][0] if x != -1])
+        if str_pred != str_real:
+            error_count += 1
+            error_text.append(str_pred)
+            real_text.append(str_real)
+
+    test_accuracy = (test_dataloader.size - error_count) / test_dataloader.size
+    print('test acc %f' % test_accuracy)
+    for real, pred in zip(real_text, error_text):
+        if len(pred) == 4:
+            print('error pair: ', real, ' ', pred, )
 
 
 if __name__ == '__main__':
     train()
-
+    # model_test()
+#     # # print(config.channel)
+#     # print(one_hot('abcd'))
+#     #
+#     model, base_model, seq_step_len = test_model()
+#     data = np.random.random_sample((4000, 150, 50, 1))
+#     labels = np.random.randint(4, size=(4000, 4))
+#     # labels = to_categorical(_labels, 37)
+#     print(labels.shape)
+#     model.fit([data,
+#                labels,
+#                np.array(np.ones(4000) * int(seq_step_len)),
+#                np.array(np.ones(4000) * 4)
+#                ], labels,
+#               batch_size=32,
+#               epochs=100,
+#               verbose=1
+#               )
