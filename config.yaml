@@ -1,6 +1,6 @@
 ############################ Project Settings ############################
 
-# :Params cnn: cnn layers use 'CNN5', 'ResNet50', 'DenseNet', 'DenseNet121', 'DenseNet169', 'DenseNet201';
+# :Params cnn: cnn layers use 'CNN5', 'ResNet50', 'DenseNet121', 'DenseNet169', 'DenseNet201';
 # :Params rnn: rnn layer use 'BiLSTM' or 'BiGRU';
 # :Params use_gpu:  whether use gpu. If True, model will use CudnnGRU or CudnnLSTM to accelerate computing;
 # :Params image_width: the images's width;
@@ -38,7 +38,7 @@
 #         loss calculation, wherein repeated labels passed to the loss are merged into single labels, default 'False';
 # :Params decode_merge_repeated: If `merge_repeated` is `True`, merge repeated classes in output, default 'false'.
 model:
-  cnn: DenseNet
+  cnn: DenseNet121
   rnn: BiLSTM
   use_gpu: False
   image_width: 150

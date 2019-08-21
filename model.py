@@ -12,7 +12,9 @@ from tensorflow.python.keras.optimizers import Adam
 from tensorflow.python.keras.models import Model
 from tensorflow.python.keras.utils import plot_model
 from networks import (
-    ResNet50, CNN5, BiGRU, BiLSTM
+    ResNet50, CNN5, BiGRU, BiLSTM,
+    DenseNet121, DenseNet169, DenseNet201
+
 )
 from settings import config
 from ctc_ops import ctc_batch_cost
@@ -35,7 +37,18 @@ def build_model():
     input_shape = (config.resize[0], config.resize[1], config.channel)
     inputs = Input(shape=input_shape)
     # CNN layers
-    x = CNN5(inputs, config.l2) if config.cnn_type == 'CNN5' else ResNet50(inputs)
+    x = None
+
+    if config.cnn_type == 'CNN5':
+        x = CNN5(inputs, config.l2)
+    elif config.cnn_type == 'ResNet50':
+        x = ResNet50(inputs)
+    elif config.cnn_type == 'DenseNet121':
+        x = DenseNet121(inputs)
+    elif config.cnn_type == 'DenseNet169':
+        x = DenseNet169(inputs)
+    elif config.cnn_type == 'DenseNet201':
+        x = DenseNet201(inputs)
     conv_shape = x.get_shape()
     x = Reshape(target_shape=(int(conv_shape[1]), int(conv_shape[2] * conv_shape[3])))(x)
     # concat Bi-RNN layers to encode and decode sequence
