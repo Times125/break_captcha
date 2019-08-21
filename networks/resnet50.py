@@ -3,16 +3,11 @@
 
 """
 @Author: _defined
-@Time:  2019/8/6 16:38
+@Time:  2019/8/21 14:20
 @Description:
-    This script defines some network structures,
-    such as ResNet50, CNN5, BiLSTM and BiGRU
+    This script defines some ResNet50 structures
 """
-from tensorflow.python.keras import backend
-from tensorflow.python.keras import layers
-from tensorflow.python.keras.regularizers import l2
-
-__all__ = ['ResNet50', 'CNN5', 'BiLSTM', 'BiGRU']
+from tensorflow.python.keras import (backend, layers)
 
 
 def _identity_block(input_tensor, kernel_size, filters, stage, block):
@@ -153,70 +148,4 @@ def ResNet50(input_tensor):
     x = _conv_block(x, 3, [512, 512, 2048], stage=5, block='a')
     x = _identity_block(x, 3, [512, 512, 2048], stage=5, block='b')
     x = _identity_block(x, 3, [512, 512, 2048], stage=5, block='c')
-    return x
-
-
-def CNN5(input_tensor, kr=0.01):
-    """
-    CNN-5
-    :param input_tensor:
-    :param kr: kernel regularizer rate
-    :return:
-    """
-    filters = [32, 64, 128, 128, 256]
-    x = input_tensor
-    for i in range(5):
-        x = layers.Conv2D(filters[i], (3, 3), padding='same', kernel_regularizer=l2(kr))(x)
-        x = layers.BatchNormalization()(x)
-        x = layers.LeakyReLU(alpha=0.2)(x)
-        if i == 0:
-            x = layers.MaxPooling2D(pool_size=(2, 2), strides=(1, 1))(x)
-        else:
-            x = layers.MaxPooling2D(pool_size=(2, 2))(x)
-    return x
-
-
-def BiGRU(input_tensor, units=64, use_gpu=True):
-    """
-    Bi-GRU
-    :param input_tensor:
-    :param units:
-    :param use_gpu: if true, use CuDNNGRU to accelerate computing.
-    :return:
-    """
-    if use_gpu:
-        GRU = layers.CuDNNGRU
-    else:
-        GRU = layers.GRU
-    gru1 = layers.Bidirectional(
-        GRU(units, return_sequences=True, kernel_initializer='he_normal', name='gru1'),
-        merge_mode='sum')(input_tensor)
-    x = layers.Bidirectional(
-        GRU(units, return_sequences=True, kernel_initializer='he_normal', name='gru2'),
-        merge_mode='concat')(gru1)
-    x = layers.TimeDistributed(layers.Dense(units=units * 2, activation='relu'), name='fc')(x)
-    x = layers.TimeDistributed(layers.Dropout(0.3), name='dropout')(x)
-    return x
-
-
-def BiLSTM(input_tensor, units=64, use_gpu=False):
-    """
-    Bi-LSTM
-    :param input_tensor:
-    :param units:
-    :param use_gpu: if true, use CuDNNGRU to accelerate computing.
-    :return:
-    """
-    if use_gpu:
-        LSTM = layers.CuDNNLSTM
-    else:
-        LSTM = layers.LSTM
-    lstm1 = layers.Bidirectional(
-        LSTM(units, return_sequences=True, kernel_initializer='he_normal', name='lstm1'),
-        merge_mode='sum')(input_tensor)
-    x = layers.Bidirectional(
-        LSTM(units, return_sequences=True, kernel_initializer='he_normal', name='lstm2'),
-        merge_mode='concat')(lstm1)
-    x = layers.TimeDistributed(layers.Dense(units=units * 2, activation='relu'), name='fc')(x)
-    x = layers.TimeDistributed(layers.Dropout(0.3), name='dropout')(x)
     return x

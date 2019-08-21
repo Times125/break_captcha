@@ -40,7 +40,8 @@ class Config(object):
         _cf = yaml.load(yaml_cont, Loader=yaml.SafeLoader)
         self.__model_args = _cf.get('model')
         _cnn = self.__model_args.get('cnn', 'CNN5')
-        self.cnn_type = _cnn if _cnn in ['CNN5', 'ResNet50'] else 'CNN5'
+        self.cnn_type = _cnn if _cnn in ['CNN5', 'ResNet50', 'DenseNet', 'DenseNet121', 'DenseNet169',
+                                         'DenseNet201'] else 'CNN5'
         _rnn = self.__model_args.get('rnn', 'BiLSTM')
         self.rnn_type = _rnn if _rnn in ['BiGRU', 'BiLSTM'] else 'BiLSTM'
         self.use_gpu = self.__model_args.get('use_gpu', False)
