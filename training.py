@@ -127,6 +127,7 @@ def train():
                                                                               epoch=epoch + 1))
         model.save_weights(ckpt_path)
         if val_acc >= config.end_acc or val_loss <= config.end_cost:
+            # tf.saved_model.save(base_model, os.path.join(SVAED_MODEL_DIR, '{name}_model.h5'.format(name=config.dataset)))
             base_model.save(os.path.join(SVAED_MODEL_DIR, '{name}_model.h5'.format(name=config.dataset)))
             break
 
@@ -148,10 +149,11 @@ def model_test():
         input_length = np.array(np.ones(1) * int(9))
         y_pred = base_model.predict(x=images[tf.newaxis, :, :, :])
         # print(y_pred.shape)  # (64, 9, 37)
-        decoded_dense, _ = tf.keras.backend.ctc_decode(y_pred, input_length,
-                                                       greedy=config.ctc_greedy,
-                                                       beam_width=config.beam_width,
-                                                       top_paths=config.top_paths)
+        decoded_dense, _ = ctc_decode(y_pred, input_length,
+                                      greedy=config.ctc_greedy,
+                                      beam_width=config.beam_width,
+                                      top_paths=config.top_paths,
+                                      merge_repeated=config.decode_merge_repeated)
 
         str_real = ''.join([config.characters[x] for x in label if x != -1])
         str_pred = ''.join([config.characters[x] for x in decoded_dense[0][0] if x != -1])
@@ -168,5 +170,5 @@ def model_test():
 
 
 if __name__ == '__main__':
-    train()
-    # model_test()
+    # train()
+    model_test()
