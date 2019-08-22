@@ -142,11 +142,12 @@ def model_test():
     base_model = tf.keras.models.load_model(os.path.join(SVAED_MODEL_DIR, '{}_model.h5'.format(config.dataset)))
     error_text = []
     real_text = []
+    _, _, time_step = build_model()
     error_count = 0
     for batch, data in enumerate(test_dataset):
         images, label = data
         # print(images.shape, label.shape)
-        input_length = np.array(np.ones(1) * int(9))
+        input_length = np.array(np.ones(1) * int(time_step))
         y_pred = base_model.predict(x=images[tf.newaxis, :, :, :])
         # print(y_pred.shape)  # (64, 9, 37)
         decoded_dense, _ = ctc_decode(y_pred, input_length,
@@ -170,5 +171,5 @@ def model_test():
 
 
 if __name__ == '__main__':
-    # train()
-    model_test()
+    train()
+    # model_test()

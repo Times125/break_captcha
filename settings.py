@@ -64,6 +64,7 @@ class Config(object):
         self.end_acc = self.__model_args.get('end_acc', 0.5)
         self.end_cost = self.__model_args.get('end_cost', 1)
         self.lr = self.__model_args.get('learning_rate', 1e-4)
+        self.decay = self.__model_args.get('decay', 0.1)
         self.l2 = self.__model_args.get('regularizer_l2', 0.01)
         self.rnn_units = self.__model_args.get('rnn_units', 64)
         self.ctc_greedy = self.__model_args.get('ctc_greedy', True)

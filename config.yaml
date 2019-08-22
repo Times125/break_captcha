@@ -25,6 +25,7 @@
 # :Params end_acc: if acc is higher than 'end_acc', the training process will stop;
 # :Params end_cost: if train cost is smaller than 'end_cost', the training process will stop;
 # :Params learning_rate: use it in Adam
+# :Params decay: use it in Adam
 # :Params regularizer_l2: use in cnn layers
 # :Params rnn_units: the unit number of rnn layers, default '64';
 # :Params ctc_greedy: perform much faster best-path search if `true`, default 'True';
@@ -38,7 +39,7 @@
 #         loss calculation, wherein repeated labels passed to the loss are merged into single labels, default 'False';
 # :Params decode_merge_repeated: If `merge_repeated` is `True`, merge repeated classes in output, default 'false'.
 model:
-  cnn: DenseNet121
+  cnn: ResNet50
   rnn: BiLSTM
   use_gpu: False
   image_width: 150
@@ -60,7 +61,8 @@ model:
   batch_size: 64
   end_acc: 0.9
   end_cost: 1.0
-  learning_rate: 0.001
+  learning_rate: 0.0001
+  decay: 0.1
   regularizer_l2: 0.01
   rnn_units: 64
   ctc_greedy: True

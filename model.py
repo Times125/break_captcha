@@ -63,7 +63,7 @@ def build_model():
     loss_out = Lambda(ctc_lambda_func, output_shape=(1,), name='ctc')(
         [predictions, labels, input_length, label_length])
     model = Model(inputs=[inputs, labels, input_length, label_length], outputs=[loss_out])
-    model.compile(loss={'ctc': lambda y_true, y_pred: y_pred}, optimizer=Adam(lr=config.lr))
+    model.compile(loss={'ctc': lambda y_true, y_pred: y_pred}, optimizer=Adam(lr=config.lr, decay=config.decay))
     if not os.path.exists('./plotModel'):
         os.makedirs('./plotModel')
     plot_model(model, './plotModel/{}-{}_model.png'.format(config.cnn_type, config.rnn_type), show_shapes=True)
