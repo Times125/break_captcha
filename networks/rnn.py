@@ -29,8 +29,8 @@ def BiGRU(input_tensor, units=64, use_gpu=True):
     x = layers.Bidirectional(
         GRU(units, return_sequences=True, kernel_initializer='he_normal', name='gru2'),
         merge_mode='concat')(gru1)
-    x = layers.TimeDistributed(layers.Dense(units=units * 2, activation='relu'), name='fc')(x)
-    x = layers.TimeDistributed(layers.Dropout(0.3), name='dropout')(x)
+    x = layers.Dense(units=units * 2, activation='relu', name='fc')(x)
+    x = layers.Dropout(0.3, name='dropout')(x)
     return x
 
 
@@ -53,6 +53,6 @@ def BiLSTM(input_tensor, units=64, use_gpu=False):
     x = layers.Bidirectional(
         LSTM(units, return_sequences=True, kernel_initializer='he_normal', name='lstm2'),
         merge_mode='concat')(lstm1)
-    x = layers.TimeDistributed(layers.Dense(units=units * 2, activation='relu'), name='fc')(x)
-    x = layers.TimeDistributed(layers.Dropout(0.3), name='dropout')(x)
+    x = layers.Dense(units=units * 2, activation='relu', name='fc')(x)
+    x = layers.Dropout(0.3, name='dropout')(x)
     return x

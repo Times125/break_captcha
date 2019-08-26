@@ -54,7 +54,7 @@ def build_model():
     # concat Bi-RNN layers to encode and decode sequence
     x = BiLSTM(x, units=config.rnn_units, use_gpu=config.use_gpu) if config.rnn_type == 'BiLSTM' \
         else BiGRU(x, units=config.rnn_units, use_gpu=config.use_gpu)
-    predictions = TimeDistributed(Dense(config.n_class, kernel_initializer='he_normal', activation='softmax'))(x)
+    predictions = Dense(config.n_class, kernel_initializer='he_normal', activation='softmax')(x)
     base_model = Model(inputs=inputs, outputs=predictions)
     # CTC_loss
     labels = Input(name='the_labels', shape=[config.max_seq_len, ], dtype='float32')
