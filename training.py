@@ -118,10 +118,10 @@ def train():
             tf.summary.scalar('acc', val_acc, step=epoch)
         print('Epoch: [{epoch}/{epochs}], train_loss: {train_loss}, train_acc: {train_acc}, '
               'val_loss: {val_loss}, val_acc: {val_acc}, '
-              'one epoch costs time: {time} s'.format(epoch=epoch + 1, epochs=config.epochs,
-                                                      train_loss=train_loss, train_acc=train_acc,
-                                                      val_loss=val_loss, val_acc=val_acc,
-                                                      time=time.time() - start))
+              'one epoch costs time: {time} s, learning rate: {lr}'.format(epoch=epoch + 1, epochs=config.epochs,
+                                                                           train_loss=train_loss, train_acc=train_acc,
+                                                                           val_loss=val_loss, val_acc=val_acc,
+                                                                           time=time.time() - start, lr=config.lr))
         ckpt_path = os.path.join(CHECKPOINT_DIR, '{cnn}&{rnn}-{epoch}'.format(cnn=config.cnn_type,
                                                                               rnn=config.rnn_type,
                                                                               epoch=epoch + 1))
