@@ -7,7 +7,8 @@
 
 1. **如何使用CPU训练：**
 
-	本项目默认安装`TensorFlow-GPU`版，建议使用`GPU`进行训练，如需换用CPU训练请替换 `requirements.txt` 文件中的`tensorflow-gpu==2.0.0b1` 为`ttensorflow==2.0.0b1`，其他无需改动。
+	本项目默认安装`TensorFlow-GPU`版，建议使用`GPU`进行训练，如需换用CPU训练请替换 `requirements.txt` 文件中的`tensorflow-gpu==2.0.0b1` 为`tensorflow==2.0.0b1`，其他无需改动。
+	需要注意的是，本项目只在`tensorflow-gpu 2.0b1`下经过完整测试，由于`tf2`当前还处于测试阶段，每个版本都有一些变更，比如目前`tensorflow-gpu 2.0rc0` 以及`rc1` 需要修改源码中`tensorflow`的导入方式，详情阅读`tensorflow` 升级文档和`issues`.
 
 2. **关于BiLSTM/BiGRU网络**:
 
