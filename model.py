@@ -7,10 +7,10 @@
 @Description: 
 """
 import os
-from tensorflow.python.keras.layers import *
-from tensorflow.python.keras.optimizers import Adam
-from tensorflow.python.keras.models import Model
-from tensorflow.python.keras.utils import plot_model
+from tensorflow.keras.layers import *
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.models import Model
+from tensorflow.keras.utils import plot_model
 from networks import (
     ResNet50, CNN5, BiGRU, BiLSTM,
     DenseNet121, DenseNet169, DenseNet201
