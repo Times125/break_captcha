@@ -1,5 +1,5 @@
 opencv-python==4.0.0.21
-Pillow==5.4.1
+Pillow==8.1.1
 tensorflow-gpu==2.0.0b1
 tqdm==4.32.2
 pydot
