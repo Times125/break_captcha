@@ -1,4 +1,4 @@
-opencv-python==4.0.0.21
+opencv-python==4.2.0.32
 Pillow==5.4.1
 tensorflow-gpu==2.0.0b1
 tqdm==4.32.2
